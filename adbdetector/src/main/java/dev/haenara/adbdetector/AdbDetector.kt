@@ -3,6 +3,8 @@ package dev.haenara.adbdetector
 import android.content.Context
 import android.content.IntentFilter
 import android.provider.Settings
+import java.io.BufferedReader
+import java.io.InputStreamReader
 
 /**
  * ADB Detector can check USB Debugging is activated both dynamically and statically.
@@ -72,6 +74,30 @@ class AdbDetector(private val mContext: Context) {
             IntentFilter("android.hardware.usb.action.USB_STATE")
         )
         return intent?.extras?.getBoolean("connected") ?: false
+    }
+
+    /**
+     * Check adb port open
+     *
+     * @remark
+     * Only check adb port open. The actual connection cannot be checked.
+     */
+    fun isOpenAdbPort(): Boolean {
+        fun exec(cmd: String): BufferedReader = Runtime.getRuntime().exec(cmd).let {
+            BufferedReader(InputStreamReader(it.inputStream))
+        }
+
+        return try {
+            // same isDebugEnabled
+            val adbRunning = exec("/system/bin/getprop init.svc.adbd").readLine().equals("running")
+
+            // get adb port
+            val adbPort = exec("/system/bin/getprop service.adb.tcp.port").readLine()
+
+            adbRunning and adbPort.isNotEmpty()
+        } catch (ignore: Exception) {
+            false
+        }
     }
 
     companion object {

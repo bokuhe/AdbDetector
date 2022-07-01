@@ -25,7 +25,7 @@ class MainActivity : AppCompatActivity() {
             val detector = AdbDetector(this)
             Toast.makeText(
                 this,
-                "debug: ${detector.isDebugEnabled()},\nusb: ${detector.isUsbConnected()}",
+                "debug: ${detector.isDebugEnabled()},\nusb: ${detector.isUsbConnected()},\nprop: ${detector.isOpenAdbPort()}",
                 Toast.LENGTH_SHORT
             ).show()
 
